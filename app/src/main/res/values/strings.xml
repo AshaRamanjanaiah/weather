@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Weather</string>
+    <string name="atoz">A-Z</string>
+    <string name="temperature">Temperature</string>
+    <string name="last_updated">Last Updated</string>
+    <string name="filter">Filter</string>
+</resources>
