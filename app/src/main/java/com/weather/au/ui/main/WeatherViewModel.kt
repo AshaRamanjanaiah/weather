@@ -1,19 +1,74 @@
 package com.weather.au.ui.main
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import com.weather.au.model.Weather
+import com.weather.au.model.WeatherData
+import com.weather.au.network.WeatherApi
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.observers.DisposableSingleObserver
 
 class WeatherViewModel : ViewModel() {
 
-    private val _index = MutableLiveData<Int>()
-    val text: LiveData<String> = Transformations.map(_index) {
-        "Hello world from section: $it"
+    private val TAG = WeatherViewModel::class.java.simpleName
+
+    private val _weatherDataList by lazy { MutableLiveData<List<WeatherData>>() }
+
+    val weatherDataList: LiveData<List<WeatherData>> get() = _weatherDataList
+
+    private val _loading by lazy { MutableLiveData<Boolean>() }
+    val loading: LiveData<Boolean> get() = _loading
+
+    private val _loadError by lazy { MutableLiveData<Boolean>() }
+    val loadError: LiveData<Boolean> get() = _loadError
+
+    private val _sortBy by lazy { MutableLiveData<String>() }
+    val sortBy: LiveData<String> get() = _sortBy
+
+    private val disposable = CompositeDisposable()
+
+    init {
+        refresh()
+        _loading.value = true
     }
 
-    fun setIndex(index: Int) {
-        _index.value = index
+    fun refresh() {
+        getWeatherData()
+        _loadError.value = false
+    }
+
+    fun setSortType(sortType: String) {
+        _sortBy.value = sortType
+    }
+
+    private fun getWeatherData() {
+        disposable.add(
+        WeatherApi.retrofitService.getWeatherInfo()
+            .subscribeOn(Schedulers.newThread())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeWith(object : DisposableSingleObserver<Weather>() {
+                override fun onSuccess(weather: Weather) {
+                    _weatherDataList.value = weather.data
+                    _loading.value = false
+                    _loadError.value = false
+                }
+
+                override fun onError(e: Throwable) {
+                    if (!_weatherDataList.value.isNullOrEmpty()) {
+                        _loadError.value = false
+                    } else {
+                        _weatherDataList.value = listOf()
+                        _loadError.value = true
+                    }
+                    _loading.value = false
+                    Log.d(TAG, "Error loading data")
+                }
+
+            })
+        )
     }
 }

@@ -22,22 +22,11 @@ class WeatherFragment : Fragment() {
     private lateinit var weatherViewModel: WeatherViewModel
     private val weatherAdapter = WeatherListAdapter(arrayListOf())
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        weatherViewModel = ViewModelProviders.of(this).get(WeatherViewModel::class.java).apply {
-            setIndex(arguments?.getInt(ARG_SECTION_NUMBER) ?: 1)
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_main, container, false)
-        val textView: TextView = root.findViewById(R.id.section_label)
-        weatherViewModel.text.observe(this, Observer<String> {
-            textView.text = it
-        })
         return root
     }
 
@@ -48,39 +37,30 @@ class WeatherFragment : Fragment() {
             adapter = weatherAdapter
             layoutManager = LinearLayoutManager(context)
         }
+        activity?.let {
+            weatherViewModel = ViewModelProviders.of(it).get(WeatherViewModel::class.java)
 
-        var weatherList = arrayListOf(Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),
-            Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),
-            Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),
-            Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),
-            Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),
-            Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),
-            Weather(false, "cloudy"), Weather(true, "rainy"),Weather(true, "Sunny"),
-            Weather(false, "cloudy"), Weather(true, "rainy")
-        )
+            weatherViewModel.setSortType(arguments?.getString(SORT_TYPE) ?: "" )
 
-        weatherAdapter.updateWeatherList(weatherList)
+            weatherViewModel.loading.observe(viewLifecycleOwner, Observer { isLoading ->
+                loading.visibility = if (isLoading) View.VISIBLE else View.GONE
+                if (isLoading) {
+                    loadError.visibility = View.GONE
+                }
+            })
+            weatherViewModel.loadError.observe(viewLifecycleOwner, Observer { isError ->
+                loadError.visibility = if (isError) View.VISIBLE else View.GONE
+            })
+            weatherViewModel.weatherDataList.observe(viewLifecycleOwner, Observer { weatherData ->
+                weatherAdapter.updateWeatherList(weatherData)
+            })
+
+            refreshLayout.setOnRefreshListener {
+                loadError.visibility = View.GONE
+                weatherViewModel.refresh()
+                refreshLayout.isRefreshing = false
+            }
+        }
     }
 
     companion object {
@@ -90,15 +70,19 @@ class WeatherFragment : Fragment() {
          */
         private const val ARG_SECTION_NUMBER = "section_number"
 
+        private const val SORT_TYPE = "sort_type"
+
         /**
          * Returns a new instance of this fragment for the given section
          * number.
          */
         @JvmStatic
-        fun newInstance(sectionNumber: Int): WeatherFragment {
+        fun newInstance(sectionNumber: Int, sortBy: String): WeatherFragment {
+            var sort = sortBy
             return WeatherFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_SECTION_NUMBER, sectionNumber)
+                    putString(SORT_TYPE, sortBy)
                 }
             }
         }

@@ -6,11 +6,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.weather.au.R
 import com.weather.au.model.Weather
+import com.weather.au.model.WeatherData
 import kotlinx.android.synthetic.main.weather_list_item.view.*
 
-class WeatherListAdapter(private val weatherList: ArrayList<Weather>): RecyclerView.Adapter<WeatherListAdapter.WeatherListViewHolder>() {
+class WeatherListAdapter(private val weatherList: ArrayList<WeatherData>): RecyclerView.Adapter<WeatherListAdapter.WeatherListViewHolder>() {
 
-    fun updateWeatherList(newWeatherList: List<Weather>) {
+    fun updateWeatherList(newWeatherList: List<WeatherData>) {
         weatherList.clear()
         weatherList.addAll(newWeatherList)
         notifyDataSetChanged()
@@ -26,7 +27,7 @@ class WeatherListAdapter(private val weatherList: ArrayList<Weather>): RecyclerV
     }
 
     override fun onBindViewHolder(holder: WeatherListViewHolder, position: Int) {
-        holder.view.tv_weather_item.text = weatherList[position].day
+        holder.view.tv_weather_item.text = weatherList[position].suburb
     }
 
     class WeatherListViewHolder(var view: View): RecyclerView.ViewHolder(view)

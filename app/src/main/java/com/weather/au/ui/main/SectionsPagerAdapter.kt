@@ -22,7 +22,11 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
     override fun getItem(position: Int): Fragment {
         // getItem is called to instantiate the fragment for the given page.
         // Return a weatherFragment (defined as a static inner class below).
-        return WeatherFragment.newInstance(position + 1)
+        return when(position) {
+            1 -> WeatherFragment.newInstance(position + 1, "temperature")
+            2 -> WeatherFragment.newInstance(position + 1, "last_updated")
+            else -> WeatherFragment.newInstance(position + 1, "aToz")
+        }
     }
 
     override fun getPageTitle(position: Int): CharSequence? {
