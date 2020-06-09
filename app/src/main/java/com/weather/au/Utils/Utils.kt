@@ -10,6 +10,7 @@ class Utils {
         const val SORT_BY_A_TO_Z = "aToz"
         const val SORT_BY_TEMPERATURE = "temperature"
         const val SORT_BY_LAST_UPDATED = "last_updated"
+        const val COUNTRY_INFO = "country_info"
 
         fun getDateTime(s: Long): String? {
 

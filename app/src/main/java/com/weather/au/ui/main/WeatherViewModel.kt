@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.weather.au.Utils.Utils
+import com.weather.au.model.Country
 import com.weather.au.model.Weather
 import com.weather.au.model.WeatherData
 import com.weather.au.network.WeatherApi
@@ -46,6 +47,9 @@ class WeatherViewModel : ViewModel() {
         _sortBy.value = sortType
     }
 
+    /**
+     * This method gets weather data from network
+     */
     private fun getWeatherData() {
         disposable.add(
         WeatherApi.retrofitService.getWeatherInfo()
@@ -73,6 +77,10 @@ class WeatherViewModel : ViewModel() {
         )
     }
 
+    /**
+     * This method sorts the list by AtoZ, temperature and last updated
+     * @param List of weather data
+     */
     private fun sortWeatherData(data: List<WeatherData>) {
         var date = ""
         when(_sortBy.value) {
@@ -85,5 +93,20 @@ class WeatherViewModel : ViewModel() {
             }
             else -> _weatherDataList.value = data
         }
+    }
+
+    /**
+     * This method returns countries list
+     * @return Array list of countries
+     */
+
+    fun getCountryList(): ArrayList<Country?> {
+        var countryList = arrayListOf<Country?>()
+        _weatherDataList.value?.forEach { data -> countryList.add(data._country) }
+
+        val newCountryList = countryList.distinct()
+        countryList.clear()
+        countryList.addAll(newCountryList)
+        return countryList
     }
 }

@@ -1,19 +1,15 @@
 package com.weather.au.ui.main
 
-import android.graphics.Typeface
 import android.os.Bundle
 import android.transition.Slide
 import android.view.View
-import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
 import com.google.android.material.tabs.TabLayout
 import androidx.viewpager.widget.ViewPager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import com.weather.au.R
+import com.weather.au.Utils.Utils
 import kotlinx.android.synthetic.main.activity_main.*
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -30,7 +26,8 @@ class MainActivity : AppCompatActivity() {
         tabs.setupWithViewPager(viewPager)
 
         viewPager.addOnPageChangeListener(
-            TabLayout.TabLayoutOnPageChangeListener(tabs))
+            TabLayout.TabLayoutOnPageChangeListener(tabs)
+        )
         tabs.addOnTabSelectedListener(object :
             TabLayout.OnTabSelectedListener {
             override fun onTabSelected(selectedTab: TabLayout.Tab) {
@@ -52,27 +49,23 @@ class MainActivity : AppCompatActivity() {
 
             }
         })
-
-
         weatherViewModel = ViewModelProviders.of(this).get(WeatherViewModel::class.java)
     }
 
     fun showDialog(view: View) {
-        var isLargeLayout = false
         val fragmentManager = supportFragmentManager
         val newFragment = CountryInfoDialogFragment()
-        if (isLargeLayout) {
-            // The device is using a large layout, so show the fragment as a dialog
-            newFragment.show(fragmentManager, "dialog")
-        } else {
-            // The device is smaller, so show the fragment fullscreen
-            val transaction = fragmentManager.beginTransaction()
-            newFragment.enterTransition = Slide()
-            newFragment.exitTransition = Slide()
-            transaction
-                .add(android.R.id.content, newFragment)
-                .addToBackStack(null)
-                .commit()
-        }
+        val bundle = Bundle()
+        val country = weatherViewModel.getCountryList()
+        bundle.putParcelableArrayList(Utils.COUNTRY_INFO, country)
+        newFragment.arguments = bundle
+        // The device is smaller, so show the fragment fullscreen
+        val transaction = fragmentManager.beginTransaction()
+        newFragment.enterTransition = Slide()
+        newFragment.exitTransition = Slide()
+        transaction
+            .add(android.R.id.content, newFragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

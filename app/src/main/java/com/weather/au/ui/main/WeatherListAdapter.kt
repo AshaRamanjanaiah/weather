@@ -6,11 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.weather.au.R
-import com.weather.au.model.Weather
 import com.weather.au.model.WeatherData
 import kotlinx.android.synthetic.main.weather_list_item.view.*
-
-
 
 class WeatherListAdapter(private val weatherList: ArrayList<WeatherData>): RecyclerView.Adapter<WeatherListAdapter.WeatherListViewHolder>() {
 
