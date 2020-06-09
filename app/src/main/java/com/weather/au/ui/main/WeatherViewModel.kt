@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.weather.au.Utils.Utils
 import com.weather.au.model.Weather
 import com.weather.au.model.WeatherData
 import com.weather.au.network.WeatherApi
@@ -52,7 +53,7 @@ class WeatherViewModel : ViewModel() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeWith(object : DisposableSingleObserver<Weather>() {
                 override fun onSuccess(weather: Weather) {
-                    _weatherDataList.value = weather.data
+                    sortWeatherData(weather.data)
                     _loading.value = false
                     _loadError.value = false
                 }
@@ -70,5 +71,19 @@ class WeatherViewModel : ViewModel() {
 
             })
         )
+    }
+
+    private fun sortWeatherData(data: List<WeatherData>) {
+        var date = ""
+        when(_sortBy.value) {
+            Utils.SORT_BY_TEMPERATURE -> {
+                _weatherDataList.value = data.sortedBy { it._weatherTemp }
+            }
+            Utils.SORT_BY_LAST_UPDATED -> {
+                _weatherDataList.value = data.sortedBy { it._weatherLastUpdated }
+                Log.d(TAG, date)
+            }
+            else -> _weatherDataList.value = data
+        }
     }
 }

@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.weather.au.R
+import com.weather.au.Utils.Utils
 
 private val TAB_TITLES = arrayOf(
     R.string.atoz,
@@ -23,9 +24,9 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
         // getItem is called to instantiate the fragment for the given page.
         // Return a weatherFragment (defined as a static inner class below).
         return when(position) {
-            1 -> WeatherFragment.newInstance(position + 1, "temperature")
-            2 -> WeatherFragment.newInstance(position + 1, "last_updated")
-            else -> WeatherFragment.newInstance(position + 1, "aToz")
+            1 -> WeatherFragment.newInstance(position + 1, Utils.SORT_BY_TEMPERATURE)
+            2 -> WeatherFragment.newInstance(position + 1, Utils.SORT_BY_LAST_UPDATED)
+            else -> WeatherFragment.newInstance(position + 1, Utils.SORT_BY_A_TO_Z)
         }
     }
 

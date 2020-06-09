@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.weather.au.R
 import com.weather.au.model.Weather
 import kotlinx.android.synthetic.main.fragment_main.*
+import kotlin.random.Random
 
 /**
  * A Weather fragment containing a weather info.
@@ -33,14 +34,16 @@ class WeatherFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        var soryBy = arguments?.getString(SORT_TYPE) ?: ""
+
         rv_weatherlist.apply {
             adapter = weatherAdapter
             layoutManager = LinearLayoutManager(context)
         }
         activity?.let {
-            weatherViewModel = ViewModelProviders.of(it).get(WeatherViewModel::class.java)
+            weatherViewModel = ViewModelProviders.of(it).get(soryBy,WeatherViewModel::class.java)
 
-            weatherViewModel.setSortType(arguments?.getString(SORT_TYPE) ?: "" )
+            weatherViewModel.setSortType(soryBy )
 
             weatherViewModel.loading.observe(viewLifecycleOwner, Observer { isLoading ->
                 loading.visibility = if (isLoading) View.VISIBLE else View.GONE
@@ -78,7 +81,6 @@ class WeatherFragment : Fragment() {
          */
         @JvmStatic
         fun newInstance(sectionNumber: Int, sortBy: String): WeatherFragment {
-            var sort = sortBy
             return WeatherFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_SECTION_NUMBER, sectionNumber)
